@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,7 +10,7 @@
 
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
              android:id="@+id/toolbar"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
@@ -18,9 +18,26 @@
              app:theme="@style/CustomToolbar"
              app:title="@string/app_name"
              android:elevation="10dp">
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
     </LinearLayout>
-    <android.support.design.widget.FloatingActionButton
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_event_note_black_24dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="@string/tryAddnewNote"
+            android:layout_gravity="center"
+            android:layout_marginTop="120dp"
+            android:textSize="14sp"
+            android:textStyle="bold" android:fontFamily="sans-serif"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,5 +46,4 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_edit_black_24dp"/>
 
-    </android.support.design.widget.CoordinatorLayout>
-
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>

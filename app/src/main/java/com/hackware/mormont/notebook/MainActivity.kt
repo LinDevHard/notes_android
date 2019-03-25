@@ -1,10 +1,8 @@
 package com.hackware.mormont.notebook
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.text.BoringLayout
 import android.view.*
 import android.widget.PopupMenu
 
@@ -19,7 +17,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         fab.setOnClickListener { view ->
            startActivity(Intent(this, Editor::class.java))
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -56,6 +53,5 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
             R.id.settings -> true
             else -> false
         }
-
     }
 }

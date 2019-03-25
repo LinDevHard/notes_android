@@ -3,4 +3,7 @@
     <string name="newNoteTip">Create a new note</string>
     <string name="menuSettings">Настройки</string>
     <string name="searchMenu">Найти</string>
+    <string name="tryAddnewNote">Создание первой заметки</string>
+    <string name="NoteEditorHint">Начните вводить заметку сюда</string>
+    <string name="titleHint">Название</string>
 </resources>
