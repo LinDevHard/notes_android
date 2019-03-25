@@ -1,17 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".Editor">
-    <android.support.design.widget.AppBarLayout android:layout_width="wrap_content"
-                                                android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:aztec="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+                android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:id="@+id/linlau">
+        <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_margin="10dp"
-        >
-        </android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
-</android.support.constraint.ConstraintLayout>
+                app:theme="@style/CustomToolbar"
+                app:title="@string/app_name"
+                android:elevation="10dp">
+        </androidx.appcompat.widget.Toolbar>
+    </LinearLayout>
+    <org.wordpress.aztec.toolbar.AztecToolbar
+            android:id="@+id/formatting_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/aztec_format_bar_height"
+            android:layout_alignParentBottom="true">
+    </org.wordpress.aztec.toolbar.AztecToolbar>
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/formatting_toolbar"
+            android:fillViewport="true" android:layout_alignParentStart="true"
+            android:layout_below="@+id/title">
+
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <org.wordpress.aztec.AztecText
+                    android:id="@+id/aztec"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="top|start"
+                    android:hint="@string/NoteEditorHint"
+                    android:paddingEnd="16dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="16dp"
+                    android:scrollbars="vertical"
+                    android:imeOptions="flagNoExtractUi"
+                    aztec:historyEnable="true"
+                    aztec:historySize="10"
+                    aztec:textColor="@color/primaryTextColor"
+                    aztec:bulletColor="@color/primaryLightColor"/>
+        </FrameLayout>
+
+    </ScrollView>
+
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:imeOptions="flagNavigateNext"
+            android:textStyle="bold"
+            android:backgroundTint="@android:color/transparent"
+            android:inputType="textCapSentences|textMultiLine"
+            android:hint="@string/titleHint"
+            android:layout_alignParentStart="true" android:layout_below="@+id/linlau"
+            android:id="@+id/title" tools:ignore="Autofill"/>
+</RelativeLayout>
