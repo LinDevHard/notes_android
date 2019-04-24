@@ -1,121 +1,106 @@
 package com.hackware.mormont.notebook
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
-import android.content.res.Configuration
 import android.os.Bundle
-import android.view.MotionEvent
-import android.view.View
-import org.wordpress.android.util.ToastUtils
+import android.os.Handler
+import android.widget.EditText
+import com.hackware.mormont.notebook.db.NotesDataBase
+import com.hackware.mormont.notebook.db.entity.NotesData
+import com.hackware.mormont.notebook.utils.DateUtil
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
-import org.wordpress.aztec.plugins.CssUnderlinePlugin
-import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
-import org.xml.sax.Attributes
+import kotlin.random.Random
+
 
 
 open class Editor : AppCompatActivity(),
-    View.OnTouchListener,
-    IHistoryListener,
     IAztecToolbarClickListener {
-
-
-    override fun onUndoEnabled() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onRedoEnabled() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     protected lateinit var aztec: Aztec
 
-    private var mIsKeyboardOpen = true
-    private var mHideActionBarOnSoftKeyboardUp = false
+    private lateinit var title: EditText
+    private lateinit var mDbWorkerThread: DbWorkerThread
+    private var mDb: NotesDataBase? = null
+    private val INTENT_NOTE_ID: String = "NoteId"
+    private var isEditing = false
+    private lateinit var mData: NotesData
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(v: View, event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
-            // If the WebView or EditText has received a touch event, the keyboard will be displayed and the action bar
-            // should hide
-            mIsKeyboardOpen = true
-            hideActionBarIfNeeded()
-        }
-        return false    }
+    private val mUiHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        mDbWorkerThread = DbWorkerThread("dbWorkerEditorThread")
+        mDbWorkerThread.start()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_editor)
 
-        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mHideActionBarOnSoftKeyboardUp = true
-        }
+        title = findViewById(R.id.title)
+        mDb = NotesDataBase.getInstance(this)
+
         val visualEditor = findViewById<AztecText>(R.id.aztec)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
-
         aztec = Aztec.with(visualEditor, toolbar, this)
-            .setOnTouchListener(this)
 
-      //  aztec.visualEditor.setCalypsoMode(true)
-
-        aztec.addPlugin(CssUnderlinePlugin())
-
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mIsKeyboardOpen = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        showActionBarIfNeeded()
+        val noteId: Long= intent.getLongExtra(INTENT_NOTE_ID, 0.toLong())
+        if( noteId != 0.toLong()){
+            isEditing = true
+            loadDataFromBd(noteId)
+        }
     }
 
     override fun onBackPressed() {
-        mIsKeyboardOpen = false
-        showActionBarIfNeeded()
+        var data: NotesData
+        if (isEditing){
+            if (mData.title != title.text.toString() || mData.rawContent != aztec.visualEditor.toFormattedHtml() )
+                saveEditedData()
+        }else  {
+            if (!title.text.isEmpty()) {
+                data = NotesData(
+                    Random.nextLong(),
+                    Random.nextLong(), DateUtil.getCurrentDate(), DateUtil.getCurrentDate(),
+                    title.text.toString(),
+                    aztec.visualEditor.text.toString(),
+                    aztec.visualEditor.toFormattedHtml()
+                )
+
+                val task = Runnable {
+                    mDb?.notesDataDao()?.insertNote(data)
+                }
+                mDbWorkerThread.postTask(task)
+            }
+        }
 
         return super.onBackPressed()
     }
 
-        private fun isHardwareKeyboardPresent(): Boolean {
-            val config = resources.configuration
-            var returnValue = false
-            if (config.keyboard != Configuration.KEYBOARD_NOKEYS) {
-                returnValue = true
-            }
-            return returnValue
-        }
-
-        private fun hideActionBarIfNeeded() {
-
-            val actionBar = supportActionBar
-            if (actionBar != null
-                && !isHardwareKeyboardPresent()
-                && mHideActionBarOnSoftKeyboardUp
-                && mIsKeyboardOpen
-                && actionBar.isShowing) {
-                actionBar.hide()
+    private fun loadDataFromBd(id: Long){
+        val task = Runnable {
+               mData = mDb!!.notesDataDao().loadNoteWithId(id)
+            mUiHandler.post{
+                if (mData.noteId == id){
+                    title.setText(mData.title)
+                    aztec.visualEditor.fromHtml(mData.rawContent)
+                }
             }
         }
+        mDbWorkerThread.postTask(task)
+    }
 
-        /**
-         * Show the action bar if needed.
-         */
-        private fun showActionBarIfNeeded() {
+    private  fun saveEditedData(){
+        mData.title = title.text.toString()
+        mData.strContent = aztec.visualEditor.text.toString()
+        mData.rawContent = aztec.visualEditor.toFormattedHtml()
+        mData.modifiedDate = DateUtil.getCurrentDate()
 
-            val actionBar = supportActionBar
-            if (actionBar != null && !actionBar.isShowing) {
-                actionBar.show()
-            }
+        val task = Runnable {
+            mDb?.notesDataDao()?.updateNote(mData)
         }
+        mDbWorkerThread.postTask(task)
+    }
+
 
     override fun onToolbarCollapseButtonClicked() {
     }
