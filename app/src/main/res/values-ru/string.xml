@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Notes</string>
+    <string name="newNoteTip">Новая заметка</string>
+    <string name="menuSettings">Настройки</string>
+    <string name="searchMenu">Найти</string>
+    <string name="tryAddnewNote">Создайте новую заметку</string>
+    <string name="NoteEditorHint">Начните вводить заметку сюда.</string>
+    <string name="titleHint">Название</string>
+    <string name="show_editor_toolbar">Показать/скрыть тулбар.</string>
+    <string name="save_note">Сохранить</string>
+    <string name="don_save_empty">Нельзя сохранять пустую заметку!</string>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="title">Название</string>
+    <string name="content">Содержание</string>
+    <string name="date">Данные</string>
+    <string name="info_bottom">Notes v 1.0 by LinDevHard</string>
+    <string name="info_top">Простые Записки</string>
+    <string name="image_sett_content_desc">Лого</string>
+    <string name="layout_title_s">Выберите Макет</string>
+    <string name="layout_desc_s">Выберете между листом и таблицей</string>
+    <string name="feedback_title_s">Отправить отзыв</string>
+    <string name="feedback_desc_s">Сообщите о технических проблемах или предложите новые функции.</string>
+    <string name="dev_email">lindevhard@gmail.com</string>
+
+    <string-array name="layout_names">
+        <item>Лист</item>
+        <item>Таблица</item>
+    </string-array>
+</resources>
