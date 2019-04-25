@@ -1,9 +1,37 @@
 <resources>
     <string name="app_name">Notes</string>
     <string name="newNoteTip">Create a new note</string>
-    <string name="menuSettings">Настройки</string>
-    <string name="searchMenu">Найти</string>
-    <string name="tryAddnewNote">Создание первой заметки</string>
-    <string name="NoteEditorHint">Начните вводить заметку сюда</string>
-    <string name="titleHint">Название</string>
+    <string name="menuSettings">Settings</string>
+    <string name="searchMenu">Search</string>
+    <string name="tryAddnewNote">Crete first note</string>
+    <string name="NoteEditorHint">Start typing a note here.</string>
+    <string name="titleHint">Title</string>
+    <string name="show_editor_toolbar">Show Toolbar</string>
+    <string name="save_note">Save note</string>
+    <string name="don_save_empty">Cannot save blank note</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title">Title</string>
+    <string name="content">Content</string>
+    <string name="date">Date</string>
+    <string name="info_bottom">Notes v 1.0 by LinDevHard</string>
+    <string name="info_top">Simple Notes by LinHard</string>
+    <string name="image_sett_content_desc">Logo</string>
+    <string name="layout_title_s">Chose Layout</string>
+    <string name="layout_desc_s">Choose between a list and a table.</string>
+    <string name="feedback_title_s">Send Feedback</string>
+    <string name="feedback_desc_s">Report technical issues or suggest new features.</string>
+    <string name="dev_email">lindevhard@gmail.com</string>
+    <!-- Strings related to Settings -->
+
+    <string-array name="layout_names">
+        <item>Liner Layout</item>
+        <item>Grid Layout</item>
+    </string-array>
+    <string-array name="layout_value">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+
+
 </resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+            android:id="@+id/save_note"
+            android:title="@string/save_note"
+            android:icon="@drawable/ic_save_black_24dp"
+            app:showAsAction="ifRoom"
+            android:actionLayout="@layout/activity_editor"/>
+    <item
+            android:title="@string/show_editor_toolbar"
+            android:icon="@drawable/ic_format_color_text_black"
+            app:showAsAction="ifRoom"
+            android:id="@+id/show_tool"
+            android:actionLayout="@layout/activity_editor"/>
+</menu>

@@ -3,15 +3,23 @@ package com.hackware.mormont.notebook
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
+import androidx.appcompat.widget.SearchView
 import com.hackware.mormont.notebook.db.NotesDataBase
 import com.hackware.mormont.notebook.db.entity.NotesData
 import com.hackware.mormont.notebook.utils.DateUtil
+import kotlinx.android.synthetic.main.activity_main.*
+import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import java.util.*
 import kotlin.random.Random
 
 
@@ -23,10 +31,12 @@ open class Editor : AppCompatActivity(),
 
     private lateinit var title: EditText
     private lateinit var mDbWorkerThread: DbWorkerThread
+    private lateinit var mToolbar: AztecToolbar
     private var mDb: NotesDataBase? = null
     private val INTENT_NOTE_ID: String = "NoteId"
     private var isEditing = false
     private lateinit var mData: NotesData
+    private var isShowToolbar = false
 
     private val mUiHandler = Handler()
 
@@ -36,13 +46,15 @@ open class Editor : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_editor)
 
+        setSupportActionBar(findViewById(R.id.toolbar))
+
         title = findViewById(R.id.title)
         mDb = NotesDataBase.getInstance(this)
 
         val visualEditor = findViewById<AztecText>(R.id.aztec)
-        val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
+        mToolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
-        aztec = Aztec.with(visualEditor, toolbar, this)
+        aztec = Aztec.with(visualEditor, mToolbar, this)
 
         val noteId: Long= intent.getLongExtra(INTENT_NOTE_ID, 0.toLong())
         if( noteId != 0.toLong()){
@@ -51,31 +63,69 @@ open class Editor : AppCompatActivity(),
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.appbar_editor_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.save_note -> {
+                  when(title.text.isEmpty()){
+                      true ->  ToastUtils.showToast(applicationContext, R.string.don_save_empty)
+                      false -> {
+                          if (isEditing) {
+                              saveEditedData()
+                          }
+                          else{
+                              isEditing = true
+                              saveNewNote()
+                         }
+                  }
+                }
+                true
+            }
+            R.id.show_tool -> {
+               if(isShowToolbar){
+                   mToolbar.visibility = View.INVISIBLE
+                   isShowToolbar = false
+               }
+                else{
+                   mToolbar.visibility = View.VISIBLE
+                   isShowToolbar = true
+               }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onBackPressed() {
-        var data: NotesData
         if (isEditing){
             if (mData.title != title.text.toString() || mData.rawContent != aztec.visualEditor.toFormattedHtml() )
                 saveEditedData()
         }else  {
-            if (!title.text.isEmpty()) {
-                data = NotesData(
-                    Random.nextLong(),
-                    Random.nextLong(), DateUtil.getCurrentDate(), DateUtil.getCurrentDate(),
-                    title.text.toString(),
-                    aztec.visualEditor.text.toString(),
-                    aztec.visualEditor.toFormattedHtml()
-                )
-
-                val task = Runnable {
-                    mDb?.notesDataDao()?.insertNote(data)
-                }
-                mDbWorkerThread.postTask(task)
+            when(title.text.isEmpty()) {
+                true  ->  ToastUtils.showToast(applicationContext, R.string.don_save_empty)
+                false -> saveNewNote()
             }
         }
-
         return super.onBackPressed()
     }
-
+    private fun saveNewNote(){
+        mData = NotesData(
+            Random.nextLong(),
+            Random.nextLong(), DateUtil.getCurrentDate(), DateUtil.getCurrentDate(),
+            title.text.toString(),
+            aztec.visualEditor.text.toString(),
+            aztec.visualEditor.toFormattedHtml()
+        )
+        val task = Runnable {
+            mDb?.notesDataDao()?.insertNote(mData)
+        }
+        mDbWorkerThread.postTask(task)
+    }
     private fun loadDataFromBd(id: Long){
         val task = Runnable {
                mData = mDb!!.notesDataDao().loadNoteWithId(id)
@@ -89,6 +139,7 @@ open class Editor : AppCompatActivity(),
         mDbWorkerThread.postTask(task)
     }
 
+
     private  fun saveEditedData(){
         mData.title = title.text.toString()
         mData.strContent = aztec.visualEditor.text.toString()
@@ -100,7 +151,6 @@ open class Editor : AppCompatActivity(),
         }
         mDbWorkerThread.postTask(task)
     }
-
 
     override fun onToolbarCollapseButtonClicked() {
     }

@@ -2,14 +2,17 @@ package com.hackware.mormont.notebook
 
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,7 +21,6 @@ import com.hackware.mormont.notebook.adapters.SearchNoteListAdapter
 import com.hackware.mormont.notebook.db.NotesDataBase
 import com.hackware.mormont.notebook.db.entity.NotesData
 import org.wordpress.android.util.ToastUtils.showToast
-import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
@@ -31,22 +33,21 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
     private lateinit var mSearchAdapter: SearchNoteListAdapter
     private lateinit var mFab : View
     private lateinit var mItems: ArrayList<NotesData>
-    private lateinit var  mDbWorkerThread: DbWorkerThread
+    private lateinit var mDbWorkerThread: DbWorkerThread
+    private lateinit var pLayout :String
 
     private val mUiHandler = Handler()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
         mFab = findViewById(R.id.fab)
         mDbWorkerThread = DbWorkerThread("dbWorkerThread")
         mDbWorkerThread.start()
-
-        viewManager = LinearLayoutManager(this)
+        getPref()
         recyclerView = findViewById(R.id.recycleView)
+        setViewManager()
         recyclerView.layoutManager = viewManager
 
         mDb = NotesDataBase.getInstance(this)
@@ -59,6 +60,32 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
     }
 
+    override fun onStart() {
+        getPref()
+        super.onStart()
+    }
+    private fun setViewManager(){
+        Log.d("setView", pLayout.toString())
+
+        when(pLayout){
+
+            "0" -> viewManager = LinearLayoutManager(this)
+            "1" -> viewManager = GridLayoutManager(this, 2)
+            else -> viewManager = LinearLayoutManager(this)
+        }
+        recyclerView.layoutManager = viewManager
+    }
+
+    override fun onRestart() {
+        getPref()
+        setViewManager()
+        super.onRestart()
+    }
+    private  fun getPref(){
+        val mySharedPref: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        pLayout = mySharedPref.getString("layout_list", "0")!!
+        Log.d("TEST", pLayout.toString())
+    }
     private fun setRecyclerViewItemTouchListener() {
         val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -73,7 +100,6 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 toDeleteElementFromDb(position)
-                showToast(applicationContext, "Swipe Detected p:$position ))) ")
             }
         }
         val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
@@ -158,8 +184,10 @@ private fun showPopup(v: View): Boolean{
 
     override fun onMenuItemClick(item: MenuItem): Boolean{
         return when (item.itemId){
-            R.id.settings -> true
-            else -> false
+            R.id.settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                return  true}
+            else -> true
         }
     }
 

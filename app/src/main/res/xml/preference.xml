@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+            android:key="layout_list"
+            android:title="@string/layout_title_s"
+            android:summary="@string/layout_desc_s"
+            android:entries="@array/layout_names"
+            android:entryValues="@array/layout_value"/>
+
+    <Preference
+            android:key="feedback"
+            android:title="@string/feedback_title_s"
+            android:summary="@string/feedback_desc_s"/>
+</PreferenceScreen>

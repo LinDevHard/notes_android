@@ -10,6 +10,8 @@
     <style name="CustomToolbar">
         <item name="android:textColorPrimary"> @color/primaryTextColor</item>
         <item name="android:background">@drawable/toolbar_shape</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
     </style>
 
 </resources>
