@@ -7,13 +7,13 @@ import com.hackware.mormont.notebook.db.entity.NotesData
 @Dao
 interface NotesDataDao{
 
-    @Query("SELECT * from NotesData")
+    @Query("SELECT * from NotesData Order by created_date DESC ")
     fun getAll() : List<NotesData>
 
     @Query ("SELECT * from NotesData WHERE note_id= :id LIMIT 1")
     fun loadNoteWithId(id: Long): NotesData
 
-    @Query("SELECT * FROM NotesData  WHERE content LIKE :query")
+    @Query("SELECT * FROM NotesData  WHERE (content LIKE :query) or  (title Like :query)")
     fun getNotesForQuery(query: String): LiveData<List<NotesData>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
