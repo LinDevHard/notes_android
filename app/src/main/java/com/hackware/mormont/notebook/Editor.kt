@@ -8,18 +8,15 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.widget.SearchView
 import com.hackware.mormont.notebook.db.NotesDataBase
 import com.hackware.mormont.notebook.db.entity.NotesData
 import com.hackware.mormont.notebook.utils.DateUtil
-import kotlinx.android.synthetic.main.activity_main.*
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
-import java.util.*
 import kotlin.random.Random
 
 
@@ -56,7 +53,7 @@ open class Editor : AppCompatActivity(),
 
         aztec = Aztec.with(visualEditor, mToolbar, this)
 
-        val noteId: Long= intent.getLongExtra(INTENT_NOTE_ID, 0.toLong())
+        val noteId: Long= intent.getLongExtra(INTENT_NOTE_ID, 0.toLong()) // Обработка входящего интента
         if( noteId != 0.toLong()){
             isEditing = true
             loadDataFromBd(noteId)
@@ -69,6 +66,9 @@ open class Editor : AppCompatActivity(),
         return true
     }
 
+    /**
+     * Назначение функционала на кнопки тулбара
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId){
             R.id.save_note -> {
@@ -113,6 +113,10 @@ open class Editor : AppCompatActivity(),
         }
         return super.onBackPressed()
     }
+
+    /**
+     * Сохранение новой заметки
+     */
     private fun saveNewNote(){
         mData = NotesData(
             Random.nextLong(),
@@ -126,6 +130,10 @@ open class Editor : AppCompatActivity(),
         }
         mDbWorkerThread.postTask(task)
     }
+
+    /**
+     * Загрузка заметки из БД
+     */
     private fun loadDataFromBd(id: Long){
         val task = Runnable {
                mData = mDb!!.notesDataDao().loadNoteWithId(id)
@@ -139,7 +147,9 @@ open class Editor : AppCompatActivity(),
         mDbWorkerThread.postTask(task)
     }
 
-
+    /**
+     * Сохранение изменненой заметки
+     */
     private  fun saveEditedData(){
         mData.title = title.text.toString()
         mData.strContent = aztec.visualEditor.text.toString()

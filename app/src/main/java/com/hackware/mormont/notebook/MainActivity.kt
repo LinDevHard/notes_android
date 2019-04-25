@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SearchView
@@ -36,21 +35,23 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
     private lateinit var mDbWorkerThread: DbWorkerThread
     private lateinit var pLayout :String
 
-    private val mUiHandler = Handler()
+    private val mUiHandler = Handler() // UI хэндлер для удобной работы с потоком БД
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
+
         mFab = findViewById(R.id.fab)
-        mDbWorkerThread = DbWorkerThread("dbWorkerThread")
+        mDbWorkerThread = DbWorkerThread("dbWorkerThread") // Создание дб Воркера
         mDbWorkerThread.start()
+
         getPref()
         recyclerView = findViewById(R.id.recycleView)
         setViewManager()
         recyclerView.layoutManager = viewManager
 
-        mDb = NotesDataBase.getInstance(this)
+        mDb = NotesDataBase.getInstance(this) //  Получение инстанса БД
         loadDataInListView()
 
         mFab.setOnClickListener { view ->
@@ -64,9 +65,11 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         getPref()
         super.onStart()
     }
-    private fun setViewManager(){
-        Log.d("setView", pLayout.toString())
 
+    /**
+     * Изменение интефейса в зависимости от настроек приложения
+     */
+    private fun setViewManager(){
         when(pLayout){
 
             "0" -> viewManager = LinearLayoutManager(this)
@@ -81,11 +84,18 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         setViewManager()
         super.onRestart()
     }
-    private  fun getPref(){
+
+    /**
+     *  Получение настроек приложения
+     */
+    private fun getPref(){
         val mySharedPref: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         pLayout = mySharedPref.getString("layout_list", "0")!!
-        Log.d("TEST", pLayout.toString())
     }
+
+    /**
+     * Назначение листенера на RecyclerView, создание кэлбэка на свайпы
+     */
     private fun setRecyclerViewItemTouchListener() {
         val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -106,10 +116,10 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
+    /**
+     * Удаление Note с БД
+     */
     private fun toDeleteElementFromDb(position: Int) {
-        val id = mItems[position].noteId
-        val size = mItems.size
-        Log.d("test", "$size , $position $")
         mDbWorkerThread.postTask(Runnable{
             mDb?.notesDataDao()?.deleteNote(mItems[position])
             mUiHandler.post(Runnable {
@@ -123,6 +133,9 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         super.onResume()
         loadDataInListView()
     }
+    /**
+     * Подключение к туллбару меню
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.appbar_menu, menu)
@@ -143,6 +156,9 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
             }
         }
 
+    /**
+     * Назначение листенера на поисковик
+     */
     private fun searchQueryTextListener(searchView: SearchView): Boolean {
         searchView.queryHint = "Search notes"
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -160,6 +176,9 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         return  true
     }
 
+    /**
+     * Поиск заметки в БД, достать и положить в адаптер
+     */
     fun getNotesFromDb(query: String){
         val searchTextQuery = "%$query%"
         mDb!!.notesDataDao().getNotesForQuery(searchTextQuery)
@@ -172,7 +191,7 @@ class MainActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
 
-private fun showPopup(v: View): Boolean{
+    private fun showPopup(v: View): Boolean{
         PopupMenu(this, v, Gravity.END).apply {
             // MainActivity implements OnMenuItemClickListener
             setOnMenuItemClickListener(this@MainActivity)
@@ -191,11 +210,14 @@ private fun showPopup(v: View): Boolean{
         }
     }
 
+    /**
+     * Выгрузить с БД все заметки, достать и положить в адаптер
+     */
     private fun loadDataInListView(){
         val task = Runnable {
             val notesData = mDb?.notesDataDao()?.getAll()
             mUiHandler.post {
-                if (notesData == null || notesData.size == 0){
+                if (notesData == null || notesData.isEmpty()){
                     showToast(this, "NoData in Cashe...")
                 } else{
                     mItems = ArrayList(notesData)
